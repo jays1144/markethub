@@ -27,11 +27,14 @@ public class PurchaseController {
 
     @PostMapping("/{user}")
     public ResponseEntity<String> createPurchase(@PathVariable User user, @RequestBody PurchaseRequestDto purchaseRequestDto) {
-
+        try {
             PurchaseResponseDto purchaseResponseDto = purchaseService.createOrder(purchaseRequestDto, user);
             // 정상적으로 처리되었을 때 200 OK 반환
             return ResponseEntity.ok("Purchase created successfully.");
-
+        } catch (Exception e) {
+            // 예외 발생 시 500 Internal Server Error 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating purchase: " + e.getMessage());
+        }
     }
 
     @PostMapping("/singleBuy")

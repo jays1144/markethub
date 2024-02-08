@@ -9,7 +9,6 @@ import org.hanghae.markethub.domain.purchase.dto.PurchaseRequestDto;
 import org.hanghae.markethub.domain.purchase.dto.PurchaseResponseDto;
 import org.hanghae.markethub.domain.purchase.entity.Purchase;
 import org.hanghae.markethub.domain.purchase.repository.PurchaseRepository;
-import org.hanghae.markethub.domain.user.entity.User;
 import org.hanghae.markethub.global.constant.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,23 +49,23 @@ class PurchaseServiceTest {
     @DisplayName("주문 생성 로직 테스트")
     void 주문하기테스트() {
         // Given
-        User user = new User();
+        String userId = "testUser";
         Status status = Status.EXIST;
         PurchaseRequestDto requestDto = new PurchaseRequestDto(status);
 
         List<Cart> carts = new ArrayList<>();
 
-        when(cartRepository.findAllByUser(user)).thenReturn(carts);
+        when(cartRepository.findByUserId(userId)).thenReturn(carts);
         when(purchaseRepository.save(any(Purchase.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
-        PurchaseResponseDto responseDto = purchaseService.createOrder(requestDto, user);
+        PurchaseResponseDto responseDto = purchaseService.createOrder(requestDto, userId);
 
         // Then
         assertNotNull(responseDto);
         assertEquals(responseDto.status(), status);
         assertEquals(responseDto.carts().size(), carts.size());
-        verify(cartRepository).findAllByUser(user);
+        verify(cartRepository).findByUserId(userId);
         verify(purchaseRepository).save(any(Purchase.class));
     }
 
@@ -110,7 +109,7 @@ class PurchaseServiceTest {
         // Given
         String email = "user@example.com";
         List<Purchase> mockPurchases = List.of(new Purchase(Status.EXIST, null)); // 테스트 데이터 준비
-        when(purchaseRepository.findByUserEmail(email)).thenReturn((Purchase) mockPurchases);
+        when(purchaseRepository.findAllByUserEmail(email)).thenReturn(mockPurchases);
 
         // When
         List<PurchaseResponseDto> responseDtoList = purchaseService.findAllPurchaseByEmail(email);
@@ -119,7 +118,7 @@ class PurchaseServiceTest {
         assertNotNull(responseDtoList);
         assertFalse(responseDtoList.isEmpty());
         assertEquals(mockPurchases.size(), responseDtoList.size());
-        verify(purchaseRepository).findByUserEmail(email);
+        verify(purchaseRepository).findAllByUserEmail(email);
     }
 
     @Test

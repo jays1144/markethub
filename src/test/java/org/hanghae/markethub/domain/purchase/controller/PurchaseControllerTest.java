@@ -50,7 +50,7 @@ class PurchaseControllerTest {
         PurchaseRequestDto requestDto = new PurchaseRequestDto(Status.EXIST); // Assuming Status.PENDING is valid
         PurchaseResponseDto responseDto = new PurchaseResponseDto(1L, Status.EXIST, Collections.emptyList(), null);
 
-        given(purchaseService.createOrder(any(PurchaseRequestDto.class), any())).willReturn(responseDto);
+        given(purchaseService.createOrder(any(PurchaseRequestDto.class), anyString())).willReturn(responseDto);
 
         mockMvc.perform(post("/api/purchase/{userId}", "user123")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ class PurchaseControllerTest {
     public void 주문생성예외처리확인() throws Exception {
         PurchaseRequestDto requestDto = new PurchaseRequestDto(Status.EXIST);
 
-        given(purchaseService.createOrder(any(PurchaseRequestDto.class), any())).willThrow(new RuntimeException("Unexpected error"));
+        given(purchaseService.createOrder(any(PurchaseRequestDto.class), anyString())).willThrow(new RuntimeException("Unexpected error"));
 
         mockMvc.perform(post("/api/purchase/{userId}", "user123")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +96,7 @@ class PurchaseControllerTest {
         String requestBody = new ObjectMapper().writeValueAsString(singlePurchaseRequestDto);
 
         given(purchaseService.createSingleOrder(any(PurchaseRequestDto.SinglePurchaseRequestDto.class)))
-                .willThrow(new IllegalArgumentException("Item not found for ID: " + singlePurchaseRequestDto.itemId()));
+                .willThrow(new RuntimeException("Item not found"));
 
         mockMvc.perform(post("/api/purchase/singleBuy")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -27,7 +27,7 @@ public class PurchaseService {
     private final ItemRepository itemRepository;
 
     //C
-
+    @Transactional
     public PurchaseResponseDto createOrder(PurchaseRequestDto purchaseRequestDto, User user) {
         List<Cart> cart = cartRepository.findAllByUser(user);
         Purchase purchase = Purchase.builder()

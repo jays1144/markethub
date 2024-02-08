@@ -54,34 +54,8 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Market hub</h1>
-    <div class="info-section">
-        <h2>구매자 정보</h2>
-        <p><span>이름:</span> <label for="buyerName"> </label><input type="text" id="buyerName" placeholder="구매자 이름"></p>
-        <p><span>이메일:</span> <label for="buyerEmail"> </label><input type="email" id="buyerEmail" placeholder="test@test.com"></p>
-    </div>
-    <div class="info-section">
-        <h2>받는사람 정보</h2>
-        <p><span>이름:</span> <label for="recipientName"> </label><input type="text" id="recipientName" placeholder="받는사람 이름"></p>
-        <p><span>주소:</span> <label for="recipientAddress"> </label><input type="text" id="recipientAddress" placeholder="배송 주소"></p>
-        <p><span>연락처:</span> <label for="recipientContact"> </label><input type="text" id="recipientContact" placeholder="연락처 정보"></p>
-    </div>
-    <div class="info-section">
-        <h2>상품 정보</h2>
-        <div id="purchaseInfo">
-            <!-- 상품 정보가 여기에 동적으로 추가될 예정입니다. -->
-        </div>
-    </div>
-    <div class="info-section">
-        <h2>결제 정보</h2>
-        <!-- 결제 정보는 동적으로 추가되므로 여기는 비워두세요 -->
-    </div>
-    <div class="button-section">
-        <button id="placeOrderButton" onclick="placeOrder()">주문하기</button>
-    </div>
-</div>
-
+<div id="purchaseInfo">Loading purchase details...</div>
+<button id="placeOrderButton" onclick="placeOrder()">주문하기</button>
 
 <script>
     // 페이지 로드 시 실행될 함수
@@ -116,12 +90,6 @@
     }
 
     function displayPurchase(purchase) {
-        const purchaseInfoElement = document.getElementById('purchaseInfo');
-        if (!purchaseInfoElement) {
-            console.error('purchaseInfo element is not found in the DOM');
-            return;
-        }
-
         // 데이터 검증을 위한 조건 추가
         if (!purchase || !purchase.purchaseId || !purchase.status) {
             console.error('Invalid purchase data');
@@ -164,7 +132,6 @@
     }
 
     function displayPurchases(purchases) {
-
         // purchases가 배열인지 확인
         if (!Array.isArray(purchases)) {
             console.error('Invalid purchases data');
