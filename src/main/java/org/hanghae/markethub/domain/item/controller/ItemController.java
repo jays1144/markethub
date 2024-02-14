@@ -185,12 +185,14 @@ public class ItemController {
 //	@GetMapping("/de/{number}")
 //	@ResponseBody
 //	public void de(@PathVariable Long number) {
-//			Item item = itemRepository.findById(1L).orElseThrow();
-//			if(item.getQuantity() > 0) {
-//				itemService.decreaseQuantity(1L, 1);
-//				System.out.println("success nunber : " + number);
-//			}else {
-//				System.out.println("fail number :" + number);
-//			}
+//		Item item = itemRepository.findById(1L).orElseThrow();
+//		if (item.getQuantity() > 0) {
+//			itemService.decreaseQuantity(1L, 1);
+//			System.out.println(i+"번째 요청 : "+"success number : " + number);
+//			i++;
+//		} else {
+//
+//		}
 //	}
+
 

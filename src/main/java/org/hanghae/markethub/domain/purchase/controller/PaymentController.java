@@ -38,12 +38,11 @@ public class PaymentController {
     }
 
 
-
     @Transactional
     @PostMapping("/verify/{imp_uid}")
     public IamportResponse<Payment> paymentByImpUid(@PathVariable("imp_uid") String imp_uid, @RequestBody PaymentRequestDto paymentRequestDto)
             throws IamportResponseException, IOException {
-        redissonFairLock.performWithFairLock("paymentLock", () -> {
+            redissonFairLock.performWithFairLock("paymentLock", () -> {
             purchaseService.updatePurchaseStatusToOrdered(paymentRequestDto.email());
 
             for (PaymentRequestDto.PurchaseItemDto item : paymentRequestDto.items()) {
