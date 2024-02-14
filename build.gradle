@@ -61,8 +61,7 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation group: 'org.redisson', name: 'redisson-spring-boot-starter', version: '3.17.0'
-
+    implementation 'org.redisson:redisson:3.16.2'
     // 아임포트(결제) 관련 //
     // https://mvnrepository.com/artifact/com.github.iamport/iamport-rest-client-java
     implementation group: 'com.github.iamport', name: 'iamport-rest-client-java', version: '0.2.22'
