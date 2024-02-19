@@ -1,5 +1,7 @@
 package org.hanghae.markethub.domain.purchase.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
@@ -20,6 +22,7 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import retrofit2.HttpException;
 
@@ -83,7 +86,7 @@ public class PaymentController {
     }
 
 
-    private void processPurchase(PaymentRequestDto paymentRequestDto, String email) throws BadRequestException {
+    private void processPurchase(PaymentRequestDto paymentRequestDto, String email) throws BadRequestException, JsonProcessingException {
         // DTO에서 impUid를 직접 참조
         String impUid = paymentRequestDto.impUid();
 
@@ -102,20 +105,20 @@ public class PaymentController {
         purchaseService.updatePurchaseStatusToOrdered(paymentRequestDto.email());
     }
 
-    private void handleSoldOut(String impUid, double amount) throws BadRequestException {
+    private void handleSoldOut(String impUid, double amount) throws BadRequestException, JsonProcessingException {
         boolean cancelResult = cancelPayment(new RefundRequestDto(impUid, amount, "재고가 부족합니다."));
         System.out.println("환불 처리 결과(재고 부족): " + cancelResult);
         throw new BadRequestException("재고가 부족합니다");
     }
 
-    private void handleQuantityExceeded(String impUid, double amount) {
+    private void handleQuantityExceeded(String impUid, double amount) throws JsonProcessingException {
         boolean cancelResult = cancelPayment(new RefundRequestDto(impUid, amount, "구매 수량이 재고보다 많습니다"));
         System.out.println("환불 처리 결과(구매수량보다 재고가 많아요): " + cancelResult);
         throw new IllegalArgumentException("상품의 재고가 부족합니다.");
     }
 
     @PostMapping("/api/payment/cancel")
-    private boolean cancelPayment(@RequestBody RefundRequestDto refundRequestDto) {
+    private boolean cancelPayment(@RequestBody RefundRequestDto refundRequestDto) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
 
         String url = "https://api.iamport.kr/payments/cancel";
@@ -140,15 +143,17 @@ public class PaymentController {
     }
 
     @PostMapping("/api/payment/token")
-    public String getAccessToken(@RequestBody PaymentRequestDto.getToken tokenData) {
+    public String getAccessToken(@RequestBody PaymentRequestDto.getToken tokenData) throws {
+        RestTemplate restTemplate = new RestTemplate();
+
         String url = "https://api.iamport.kr/users/getToken";
 
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-
         HttpEntity<PaymentRequestDto.getToken> request = new HttpEntity<>(tokenData, headers);
+
 
         ResponseEntity<IamportResponseDto> response = restTemplate.postForEntity(url, request, IamportResponseDto.class);
 

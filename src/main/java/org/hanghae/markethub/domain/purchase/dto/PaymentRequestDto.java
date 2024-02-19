@@ -1,5 +1,7 @@
 package org.hanghae.markethub.domain.purchase.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -18,6 +20,7 @@ public record PaymentRequestDto(
     ) {
 
     }
+
     public record getToken(
             String imp_key,
             String imp_secret
