@@ -146,7 +146,7 @@ public class JwtUtil {
         Cookie[] cookies = req.getCookies();
         if(cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(cookieName)) { // 변경된 쿠키 이름으로 수정
+                if (cookie.getName().equals(cookieName)) {
                     try {
                         return URLDecoder.decode(cookie.getValue(), "UTF-8");
                     } catch (UnsupportedEncodingException e) {
