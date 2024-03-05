@@ -6,13 +6,10 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.hanghae.markethub.global.constant.ErrorMessage;
 import org.hanghae.markethub.global.constant.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -23,6 +20,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j(topic = "JWT 관련 로그")
 @Component
 public class JwtUtil {
 
@@ -31,7 +29,6 @@ public class JwtUtil {
 
     private static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
-    private static final String JWT_LOG_HEAD = "JWT 관련 로그";
 //    public final long ACCESS_TOKEN_EXPIRATION_TIME = 60 * 60 * 1000L; // 60분
     public final long REFRESH_TOKEN_EXPIRATION_TIME = 14 * 60 * 60 * 24 * 1000L; // 14일
 
@@ -45,7 +42,6 @@ public class JwtUtil {
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    public static final Logger logger = LoggerFactory.getLogger(JWT_LOG_HEAD);
 
     @PostConstruct
     public void init() {
@@ -93,7 +89,7 @@ public class JwtUtil {
 
             res.addCookie(cookie);
         } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
     public String substringToken(String tokenValue) {
@@ -104,17 +100,18 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
+        log.info("validateToken 실행" + token);
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e ) {
-            logger.error(ErrorMessage.INVALID_JWT_ERROR_MESSAGE.getErrorMessage());
+        } catch (SignatureException | SecurityException | MalformedJwtException e) {
+            log.error(ErrorMessage.INVALID_JWT_ERROR_MESSAGE.getErrorMessage());
         } catch (ExpiredJwtException e) {
-            logger.error(ErrorMessage.EXPIRED_JWT_ERROR_MESSAGE.getErrorMessage());
+            log.error(ErrorMessage.EXPIRED_JWT_ERROR_MESSAGE.getErrorMessage());
         } catch (UnsupportedJwtException e) {
-            logger.error(ErrorMessage.UNSUPPORTED_JWT_ERROR_MESSAGE.getErrorMessage());
+            log.error(ErrorMessage.UNSUPPORTED_JWT_ERROR_MESSAGE.getErrorMessage());
         } catch (IllegalArgumentException e) {
-            logger.error(ErrorMessage.EMPTY_JWT_ERROR_MESSAGE.getErrorMessage());
+            log.error(ErrorMessage.EMPTY_JWT_ERROR_MESSAGE.getErrorMessage());
         }
         return false;
     }
@@ -173,4 +170,3 @@ public class JwtUtil {
         return null;
     }
 
-}
