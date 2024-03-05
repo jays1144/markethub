@@ -159,14 +159,11 @@ public class JwtUtil {
     }
 
     public String refreshAccessToken(String refreshToken) {
-        // Refresh 토큰이 유효하면 새로운 엑세스 토큰을 발급
-        if (validateToken(refreshToken)) {
-            Claims claims = getUserInfoFromToken(refreshToken);
-            String email = claims.getSubject();
-            String name = claims.get("name", String.class);
-            Role role = Role.valueOf(claims.get(AUTHORIZATION_KEY, String.class));
-            return createAccessToken(email, name, role);
-        }
-        return null;
+        Claims claims = getUserInfoFromToken(refreshToken);
+        String email = claims.getSubject();
+        String name = claims.get("name", String.class);
+        Role role = Role.valueOf(claims.get(AUTHORIZATION_KEY, String.class));
+        return createAccessToken(email, name, role);
     }
+}
 
