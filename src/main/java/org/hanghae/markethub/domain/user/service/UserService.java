@@ -40,15 +40,12 @@ public class UserService {
                 .status(Status.EXIST)
                 .build();
 
-        // 중복된 이메일 있는지 확인
         if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new IllegalArgumentException(ErrorMessage.EMAIL_ALREADY_EXIST_ERROR_MESSAGE.getErrorMessage());
         }
         userRepository.save(user);
         return true;
     }
-
-
 
     public UserResponseDto getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(
