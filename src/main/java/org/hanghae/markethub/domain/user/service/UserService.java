@@ -74,13 +74,10 @@ public class UserService {
     }
 
     public UserResponseDto getAuthenticatedUserResponseDto(UserDetailsImpl userDetails) {
-        // UserDetailsImpl에서 인증된 사용자 정보 가져오기
         User user = userDetails.getUser();
-        // UserResponseDto로 변환하여 반환
         return new UserResponseDto(user);
     }
 
-    // 유저 id랑 status 체크하는 함수, 유저가 valid하지 않으면 에러 발생해서 함수 종료
     public void checkUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException(ErrorMessage.USER_NOT_FOUND_ERROR_MESSAGE.getErrorMessage());
@@ -93,11 +90,7 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException(ErrorMessage.USER_NOT_FOUND_ERROR_MESSAGE.getErrorMessage())
         );
-
-        // 새로운 암호를 받아와서 암호화
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-
-        // UserRequestDto 빌더 패턴으로 암호를 설정
         requestDto = UserRequestDto.builder()
                 .email(requestDto.getEmail())
                 .password(encodedPassword)
@@ -107,9 +100,7 @@ public class UserService {
                 .role(requestDto.getRole())
                 .build();
 
-        // 사용자 정보 업데이트
         user.update(requestDto);
-
         return new UserResponseDto(user);
     }
 
@@ -125,11 +116,9 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException(ErrorMessage.USER_NOT_FOUND_ERROR_MESSAGE.getErrorMessage())
         );
-
         return new UserResponseDto(user);
     }
 
-    // 이메일이 있으면 true, 없으면 false
     public boolean checkEmailExists(String email) {
         return userRepository.existsByEmail(email);
     }
