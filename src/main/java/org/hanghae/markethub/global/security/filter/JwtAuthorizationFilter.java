@@ -37,17 +37,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (!jwtUtil.validateToken(accessToken)) {
             String refreshToken = jwtUtil.getTokenFromRequest(req, jwtUtil.REFRESHTOKEN_HEADER);
             refreshToken = jwtUtil.substringToken(refreshToken);
-            String userEmailFromToken = jwtUtil.getUserEmailFromToken(req, jwtUtil.REFRESHTOKEN_HEADER);
-            if (jwtUtil.validateToken(refreshToken)) {
-
-                if (securityRedisService.getValues(userEmailFromToken).substring(JwtUtil.BEARER_PREFIX.length()).equals(refreshToken)) {
-
-                } else {
-                    filterChain.doFilter(req, res);
-                    return;
-                }
+            if (!jwtUtil.validateToken(refreshToken)) {
+                filterChain.doFilter(req, res);
+                return;
             }
-            String newAccessToken = jwtUtil.refreshAccessToken(refreshToken);
+
+            String userEmailFromToken = jwtUtil.getUserEmailFromToken(req, jwtUtil.REFRESHTOKEN_HEADER);
+            if (!securityRedisService.getValues(userEmailFromToken).substring(JwtUtil.BEARER_PREFIX.length()).equals(refreshToken)) {
+                filterChain.doFilter(req, res);
+                return;
+            }
+
+        String newAccessToken = jwtUtil.refreshAccessToken(refreshToken);
 
             if (newAccessToken != null) {
                 accessToken = newAccessToken;
