@@ -124,7 +124,10 @@
 		})
 			.then(response => {
 				alert("장바구니 등록 성공");
-				window.location.reload()
+				if(url === "/api/carts") {
+					window.location.href= url
+				}else if (url === "/api/carts/nouser")
+				window.location.href= url + "/getAll";
 			})
 			.catch(reason => alert(reason))
 	}

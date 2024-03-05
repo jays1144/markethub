@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.hanghae.markethub.domain.event.dto.CreateEventDto;
 import org.hanghae.markethub.domain.event.dto.EventItemResponseDto;
 import org.hanghae.markethub.domain.event.service.EventService;
+import org.hanghae.markethub.domain.user.entity.User;
 import org.hanghae.markethub.global.security.impl.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,7 +52,7 @@ public class EventController {
 		return itemsResponseDtos;
 	}
 
-	@GetMapping("/schedule") // 동적 스케쥴러 변경  시작시간 :19:30분 이면 1930 종료시간 19:35분 이면 19:35 입력
+	@GetMapping("/schedule")
 	@ResponseBody
 	public ResponseEntity<String> setSchedule() {
 		eventService.setEventSchedule();

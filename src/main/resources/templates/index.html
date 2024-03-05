@@ -20,7 +20,7 @@
         }
 
         #banner {
-            width: 100%;
+            width: 45%;
             height: 350px;
             background-color: #f0f0f0;
             background-size: cover;
@@ -132,7 +132,7 @@
 </div>
 
 <div style="float: left;">
-    <button onclick="sendGetRequest()">이벤트 요청</button>
+    <button class="evtbtn" onclick="sendGetRequest()">이벤트 요청</button>
 </div>
 
 <!-- 아이템 목록을 표시할 위치 -->
@@ -179,11 +179,33 @@
     /*<![CDATA[*/
     // 페이지 로드시 실행
     window.onload = function() {
+        var token = document.cookie
+
+        function decodeToken(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        }
+
+        const payload = decodeToken(token);
+        const authValue = payload.auth;
+        var buttonContainer = document.getElementsByClassName("evtbtn")[0];
+        buttonContainer.style.display = 'none';
+        console.log(authValue); // 결과 출력: ADMIN
+        if (authValue === 'ADMIN') {
+            var buttonContainer = document.getElementsByClassName("evtbtn")[0];
+            buttonContainer.style.display = 'block';
+        }
+
         console.log(eventTime)
         var banner = document.getElementById('banner');
         if (eventTime != null && banner && (eventTime <= getCurrentTime())) {
             var newImg = document.createElement('img');
-            newImg.src = "/img/eventBanner.PNG";
+            newImg.src = "https://blog.kakaocdn.net/dn/byAA7z/btsFt5ac77H/SorUbrCcSSHfm5IKq7ib9K/img.png";
             newImg.alt = "Banner 4";
             banner.appendChild(newImg);
             newImg.onclick = function() {

@@ -23,9 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
@@ -41,11 +39,10 @@ public class EventService {
 	private ScheduledFuture<?> startEventScheduledFuture;
 	private ScheduledFuture<?> endEventScheduledFuture;
 	private String time ;
-	private Map<Long, Integer> oldPrice = new HashMap<>();
 
 	public void setEventSchedule() {
-		LocalTime startTime = LocalTime.now().plusMinutes(1);
-		LocalTime endTime = LocalTime.now().plusMinutes(2);
+		LocalTime startTime = LocalTime.now().plusSeconds(5);
+		LocalTime endTime = LocalTime.now().plusSeconds(30);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
 		time = startTime.format(formatter);
 		int[] start = timeConvert(startTime);
@@ -78,6 +75,7 @@ public class EventService {
 			@Override
 			public void run() {
 				try {
+					time = null;
 					endEvent();
 				} catch (JsonProcessingException e) {
 					throw new RuntimeException(e);
@@ -101,6 +99,7 @@ public class EventService {
 				.itemId(createEventDto.getItemId())
 				.quantity(createEventDto.getQuantity())
 				.price(createEventDto.getPrice())
+				.oldPrice(item.getPrice())
 				.build();
 
 		eventRepository.save(event);
@@ -132,7 +131,6 @@ public class EventService {
 					.build();
 			itemService.updateItem(item.getId(), requestDto, item.getUser());
 
-			oldPrice.put(item.getId(), item.getPrice());
 		}
 	}
 
@@ -145,14 +143,13 @@ public class EventService {
 				ItemUpdateRequestDto requestDto = ItemUpdateRequestDto.builder()
 						.itemName(item.getItemName())
 						.quantity(item.getQuantity())
-						.price(oldPrice.get(event.getItemId()))
+						.price(event.getOldPrice())
 						.itemInfo(item.getItemInfo())
 						.category(item.getCategory())
 						.build();
 				itemService.updateItem(item.getId(), requestDto, item.getUser());
 			}
 		}
-		this.oldPrice.clear();
 		this.eventRepository.deleteAll();
 	}
 
@@ -185,7 +182,7 @@ public class EventService {
 
 				EventItemResponseDto eventItemResponseDto = EventItemResponseDto.builder()
 						.items(itemsResponseDto)
-						.oldPrice(oldPrice.get(item.getId()))
+						.oldPrice(event.getOldPrice())
 						.build();
 
 				eventItemResponseDtos.add(eventItemResponseDto);

@@ -109,12 +109,6 @@ public class ItemService {
 
 	}
 
-//	public ItemsResponseDto getItem(Long itemId) {
-//		Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("No such Item"));
-//		return ItemsResponseDto.fromEntity(item, awsS3Service.getObjectUrlsForItemTest(item));
-//
-//	}
-
 	@Transactional
 	public Item updateItem(Long itemId, ItemUpdateRequestDto requestDto, User user) throws JsonProcessingException {
 
@@ -163,6 +157,7 @@ public class ItemService {
 		Page<ItemsResponseDto> itemsResponseDtos = elasticSearchService.searchNativeQuery(keyword, page, size);
 		return itemsResponseDtos;
 	}
+
 	@Transactional
 	public void decreaseQuantity(Long itemId, int quantity) throws JsonProcessingException {
 		Item item = itemRepository.findById(itemId).orElseThrow();
@@ -204,16 +199,16 @@ public class ItemService {
 		}
 	}
 
-
-	public boolean decreaseItemForRedis(Long itemId, int quantity) throws JsonProcessingException {
+	public boolean validItem(Long itemId, int quantity) throws JsonProcessingException {
 		String key = "item:" + itemId;
 		String json = (String) redisTemplate.opsForValue().get(key);
 		RedisItemResponseDto redisItemResponseDto = objectMapper.readValue(json, RedisItemResponseDto.class);
-		if (redisItemResponseDto.getQuantity() >= quantity) {
-			return true;
+		if (redisItemResponseDto.getQuantity() < quantity) {
+			throw new IllegalArgumentException("재고가 부족합니다.");
 		}
-		throw new IllegalArgumentException("재고가 부족합니다.");
+		return true;
 	}
+
 
 	private void updateForRedis(Item item, String key) throws JsonProcessingException {
 		List<String> objectUrlsForItem = awsS3Service.getObjectUrlsForItemTest(item);
@@ -224,6 +219,4 @@ public class ItemService {
 		redisTemplate.opsForZSet().add(key, itemKey, score);
 		redisTemplate.opsForValue().set(itemKey, json);
 	}
-
-
 }
