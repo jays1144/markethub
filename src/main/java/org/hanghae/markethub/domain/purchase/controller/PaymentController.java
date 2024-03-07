@@ -19,6 +19,7 @@ import org.hanghae.markethub.global.security.jwt.JwtUtil;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -43,8 +44,10 @@ public class PaymentController {
     private final JwtUtil jwtUtil;
 
     //2월 29일 작업목록 1. 시크릿키, api키 변수화
-    static final String secretKey = "KuT8n5XYtxPTo4c0VoRTQLrZeHJUOsx3h7zBXgrltDcL6yiH7KZ5ulZJVJWPeqRvPxfuE5B7u1G7Ioxc";
-    static final String apiKey = "4067753427514612";
+   @Value("${secret.key}")
+    private String secretKey;
+   @Value("${api.key}")
+    private String apiKey;
 
     @Autowired
     public PaymentController(PurchaseService purchaseService, ItemService itemService, RedissonClient redissonClient, JwtUtil jwtUtil) {
@@ -59,16 +62,20 @@ public class PaymentController {
     @PostMapping("/verify")
     public IamportResponse<Payment> paymentByImpUid(@RequestBody PaymentRequestDto paymentRequestDto, HttpServletRequest req) throws IamportResponseException, IOException {
         String email = jwtUtil.getUserEmailFromToken(req);
+        System.out.println(1);
         RLock lock = redissonClient.getFairLock("payment:" + paymentRequestDto.impUid());
+        System.out.println(2);
         try {
             // 락을 최대 10초 동안 대기하고, 락을 획득하면 최대 5초 동안 유지
             if (lock.tryLock(10, 5, TimeUnit.SECONDS)) {
                 try {
+                    System.out.println(3);
                     // 비즈니스 로직 처리
                     processPurchase(paymentRequestDto, email);
                     return iamportClient.paymentByImpUid(paymentRequestDto.impUid());
                 } finally {
                     lock.unlock(); // 작업 완료 후 락 해제
+                    System.out.println(4);
                 }
             } else {
                 throw new IllegalStateException("Unable to acquire lock for payment processing");
@@ -101,10 +108,12 @@ public class PaymentController {
     private void checkPriceBeforePayment(PaymentRequestDto paymentRequestDto, PaymentRequestDto.PurchaseItemDto item, String impUid) throws IOException {
 
         if (!purchaseService.checkPrice(paymentRequestDto.amount(),item.itemId(),item.quantity())) {
+            System.out.println("잘못된 금액");
            badPriceInput(impUid,paymentRequestDto.amount());
         }
 
         else if (itemService.isSoldOut(item.itemId())) {
+            System.out.println("솔드아웃 ");
             handleSoldOut(impUid, paymentRequestDto.amount());
         }
 

@@ -181,6 +181,7 @@
                         window.location.href = '/api/purchase/checkPurchases'
                     })
                     .catch(error => {
+                        console.log(data);
                         alert("결제 검증 과정에서 오류 발생");
                         console.error("Error:", error);
                     });
