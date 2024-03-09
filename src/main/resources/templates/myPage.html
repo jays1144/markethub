@@ -94,6 +94,7 @@
         <p><strong>Address:</strong> <span th:text="${user.address}"></span></p>
 
         <button id="storeInfoBtn" style="display: none;" onclick="redirectToStoreMain()">스토어 정보</button>
+        <button id="checkPurchaseBtn" style="display: none;" onclick="redirectTocheckPurchases()">주문 목록</button>
     </div>
 </div>
 
@@ -106,13 +107,15 @@
     if (userRole === "ADMIN") {
         document.getElementById('storeInfoBtn').style.display = 'block';
     }
-</script>
-<script>
+
     function redirectToStoreMain() {
         window.location.href = "/api/stores/main";
     }
-</script>
-<script>
+
+    function redirectTocheckPurchases() {
+        window.location.href = "/api/purchase/checkPurchases";
+    }
+
     let host = 'http://' + window.location.host;
 
     document.addEventListener('DOMContentLoaded', function () {
